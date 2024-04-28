@@ -1,42 +1,65 @@
 package io.github.bootystar.helper.minio.client;
 
 import io.minio.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Data;
+import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+@Slf4j
+@Data
+@Accessors(chain = true)
 public class MinioEnhancedClient{
 
-    protected String defaultBucket;
+    protected String defaultBucket = "defaultBucket";
 
-    protected final Logger log ;
 
     protected MinioClient minioClient;
 
     public MinioEnhancedClient(MinioClient minioClient) {
         this.minioClient = minioClient;
-        log = LoggerFactory.getLogger(getClass());
     }
     public MinioEnhancedClient(MinioClient minioClient,String defaultBucket) {
         this.minioClient = minioClient;
-        log = LoggerFactory.getLogger(getClass());
         this.defaultBucket = defaultBucket;
+        if(defaultBucket!=null && !defaultBucket.isEmpty()){
+            createBucket(defaultBucket);
+        }
     }
 
-    public MinioClient getMinioClient() {
-        return minioClient;
+
+    public boolean bucketExists(String bucketName) {
+        try {
+           return minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+        }catch (Exception e){
+            log.error("createBucket => bucket error" , e);
+        }
+        return false;
     }
 
-    public String getDefaultBucket() {
-        return defaultBucket;
+    public void createBucket(String bucketName) {
+        try {
+            boolean b = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+            if (!b){
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+            }
+        }catch (Exception e){
+            log.error("createBucket => bucket error" , e);
+        }
     }
 
-    public void setDefaultBucket(String defaultBucket) {
-        this.defaultBucket = defaultBucket;
+    public void removeBucket(String bucketName) {
+        try {
+            minioClient.removeBucket(RemoveBucketArgs.builder().bucket(bucketName).build());
+        }catch (Exception e){
+            log.error("createBucket => bucket error" , e);
+        }
     }
+
+
 
     public ObjectWriteResponse upload(String bucketName, String filename, InputStream is) {
         try {
