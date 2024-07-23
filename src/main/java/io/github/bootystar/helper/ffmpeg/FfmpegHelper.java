@@ -56,6 +56,7 @@ public class FfmpegHelper {
             String line = "";
             BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
             while ((line = br.readLine()) != null) {
+                log.info(line);
                 result.append(line);
                 result.append("\n");
             }
@@ -66,9 +67,19 @@ public class FfmpegHelper {
                 process.destroy();
             }
         }
-        log.info("\n----------command result----------\n{}\n----------command result----------", result);
         return result.toString();
     }
+    
+    private void removeExisted(String filePath) {
+        File file = new File(filePath);
+        if (file.exists()){
+            boolean delete = file.delete();
+            if (!delete){
+                throw new RuntimeException("delete existed file failed : " + filePath);
+            }
+        }
+    }
+    
 
 
     /**
@@ -137,7 +148,6 @@ public class FfmpegHelper {
         commandStart(command);
     }
 
-
     /**
      * 从视频中提取音频为mp3
      *
@@ -146,6 +156,7 @@ public class FfmpegHelper {
      * @author booty
      */
     public void getAudioFromVideo(String videoResourcesPath,String saveFilePath) {
+        removeExisted(saveFilePath);
         List<String> command = new ArrayList<>();
         command.add(ffmpeg);
         command.add("-i");
@@ -162,6 +173,7 @@ public class FfmpegHelper {
      * @author booty
      */
     public void getVideoFromAudio(String videoResourcesPath,String saveFilePath) {
+        removeExisted(saveFilePath);
         List<String> command = new ArrayList<>();
         command.add(ffmpeg);
         command.add("-i");
@@ -184,6 +196,7 @@ public class FfmpegHelper {
      * @author booty
      */
     public void mergeSilentVideoAudio(String videoResourcesPath, String audioResourcesPath, String saveFilePath) {
+        removeExisted(saveFilePath);
         List<String> command = new ArrayList<>();
         command.add(ffmpeg);
         command.add("-i");
@@ -210,6 +223,7 @@ public class FfmpegHelper {
      * @author booty
      */
     public void mergeVideoAudio(String videoResourcesPath, String audioResourcesPath, String saveFilePath) {
+        removeExisted(saveFilePath);
         List<String> command = new ArrayList<>();
         command.add(ffmpeg);
         command.add("-i");
@@ -239,6 +253,7 @@ public class FfmpegHelper {
      * @author booty
      */
     public void mergeVideosUnstable(List<String> videoResourcesPathList, String saveFilePath) {
+        removeExisted(saveFilePath);
         //所有要合并的视频转换为ts格式存到videoList里
         List<String> videoList = new ArrayList<>();
         for (String video : videoResourcesPathList) {
@@ -285,6 +300,7 @@ public class FfmpegHelper {
      * @author booty
      */
     public void mergeVideos(List<String> videoResourcesPathList,String saveFilePath) {
+        removeExisted(saveFilePath);
         //将所有要合并的视频路径写入txt文件
         String txtFileName = UUID.randomUUID() + ".txt";
         File txt = new File(tempMediaDir, txtFileName);
@@ -322,6 +338,7 @@ public class FfmpegHelper {
      * @author booty
      */
     public void mergeAudios(List<String> audioResourcesPathList, String saveFilePath) {
+        removeExisted(saveFilePath);
         List<String> command = new ArrayList<>();
         command.add(ffmpeg);
         command.add("-i");
@@ -350,6 +367,7 @@ public class FfmpegHelper {
      * @author booty
      */
     public void videoFormatConversion(String videoResourcesPath,String saveFilePath) {
+        removeExisted(saveFilePath);
         List<String> command = new ArrayList<>();
         command.add(ffmpeg);
         command.add("-i");
@@ -430,6 +448,7 @@ public class FfmpegHelper {
      * @author booty
      */
     public void cutVideoAudio(String videoAudioResourcesPath, LocalTime startTime, LocalTime endTime, String saveFilePath) {
+        removeExisted(saveFilePath);
         List<String> command = new ArrayList<>();
         command.add(ffmpeg);
         command.add("-ss");
@@ -462,10 +481,11 @@ public class FfmpegHelper {
      * @param finallyHeight           裁剪后最终视频的高度
      * @param leftDistance            开始裁剪的视频左边到y轴的距离（视频左下角为原点）
      * @param topDistance             开始裁剪的视频上边到x轴的距离（视频左下角为原点）
-     * @param saveFilePath              保存文件路径
+     * @param saveFilePath            保存文件路径
      * @author booty
      */
     public void cropVideoSize(String videoAudioResourcesPath, String finallyWidth, String finallyHeight, String leftDistance, String topDistance,String saveFilePath) {
+        removeExisted(saveFilePath);
         List<String> command = new ArrayList<>();
         command.add(ffmpeg);
         command.add("-i");
@@ -513,11 +533,12 @@ public class FfmpegHelper {
      * @param saveFilePath       保存文件路径
      * @author booty
      */
-    public void videoScreenshot(String videoResourcesPath, String screenshotTime, String saveFilePath) {
+    public void videoScreenshot(String videoResourcesPath, LocalTime screenshotTime, String saveFilePath) {
+        removeExisted(saveFilePath);
         List<String> command = new ArrayList<>();
         command.add(ffmpeg);
         command.add("-ss");
-        command.add(screenshotTime);
+        command.add(screenshotTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         command.add("-i");
         command.add(videoResourcesPath);
         command.add("-f");
@@ -558,6 +579,7 @@ public class FfmpegHelper {
      * @author booty
      */
     public void pictureAudioMerge(String pictureResourcesPath, String audioResourcesPath,String fps,String saveFilePath) {
+        removeExisted(saveFilePath);
         List<String> command = new ArrayList<>();
         command.add(ffmpeg);
         command.add("-threads");
@@ -587,6 +609,7 @@ public class FfmpegHelper {
      * @author booty
      */
     public void audioWaveform(String audioResourcesPath, String saveFilePath) {
+        removeExisted(saveFilePath);
         List<String> command = new ArrayList<>();
         command.add(ffmpeg);
         command.add("-i");
@@ -604,8 +627,6 @@ public class FfmpegHelper {
 
     /**
      * 两个音频混缩合并为一个音频（即同一时间播放两首音频）。
-     * <p>
-     * <p>
      * 音量参考：@link:https://blog.csdn.net/sinat_14826983/article/details/82975561
      *
      * @param audioResourcesPath1 音频2文件路径的
@@ -614,6 +635,7 @@ public class FfmpegHelper {
      * @author booty
      */
     public void mergeAudios(String audioResourcesPath1, String audioResourcesPath2, String saveFilePath) {
+        removeExisted(saveFilePath);
         List<String> command = new ArrayList<>();
         command.add(ffmpeg);
         command.add("-i");
@@ -638,6 +660,7 @@ public class FfmpegHelper {
      * @author booty
      */
     public void mergeAudios(String audioResourcesPath1,String number1, String audioResourcesPath2,String number2, String saveFilePath) {
+        removeExisted(saveFilePath);
         List<String> command = new ArrayList<>();
         command.add(ffmpeg);
         command.add("-i");
@@ -660,6 +683,7 @@ public class FfmpegHelper {
      * @author booty
      */
     public void mergeAudiosSoundtrack(String audioResourcesPath1, String audioResourcesPath2,String saveFilePath) {
+        removeExisted(saveFilePath);
         List<String> command = new ArrayList<>();
         command.add(ffmpeg);
         command.add("-i");
@@ -671,9 +695,7 @@ public class FfmpegHelper {
         command.add(saveFilePath);
         commandStart(command);
     }
+
     
-
-
-
     
 }
