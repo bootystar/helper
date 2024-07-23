@@ -309,6 +309,10 @@ public class FfmpegHelper {
             for (String video : videoResourcesPathList) {
                 writer.println("file '" + video + "'");
             }
+        } catch (IOException e) {
+            log.error("生成txt文件失败", e);
+        }
+        try {
             List<String> command = new ArrayList<>();
             command.add(ffmpeg);
             command.add("-f");
@@ -321,8 +325,6 @@ public class FfmpegHelper {
             command.add("copy");
             command.add(saveFilePath);
             commandStart(command);
-        } catch (IOException e) {
-            log.error("合并视频失败", e);
         } finally {
             if (txt.exists()) {
                 txt.delete();
