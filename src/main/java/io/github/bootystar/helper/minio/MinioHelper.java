@@ -1,8 +1,6 @@
 package io.github.bootystar.helper.minio;
 
 import io.minio.*;
-import lombok.Data;
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -10,8 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 @Slf4j
-@Data
-@Accessors(chain = true)
 public class MinioHelper {
 
     protected String defaultBucket = "defaultBucket";
@@ -114,7 +110,6 @@ public class MinioHelper {
                                      .bucket(bucketName)
                                      .object(filename)
                                      .build());){
-            System.out.println(is.available());
             byte[] buf = new byte[16384];
             int bytesRead;
             while ((bytesRead = is.read(buf, 0, buf.length)) >= 0) {
