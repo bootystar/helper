@@ -22,6 +22,15 @@ public class FfmpegHelper {
     private final String tempMediaPath;
     private final File tempMediaDir;
 
+    /**
+     * ffmpeg助手
+     *
+     * @param ffplay        ffplay可执行文件路径
+     * @param ffmpeg        ffmpeg可执行文件路径
+     * @param ffprobe       ffprobe可执行文件路径
+     * @param tempMediaPath 临时文件保存路径
+     * @author booty
+     */
     public FfmpegHelper(String ffplay, String ffmpeg, String ffprobe, String tempMediaPath) {
         this.ffplay = ffplay;
         this.ffmpeg = ffmpeg;
